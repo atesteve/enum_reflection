@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <optional>
 #include <limits>
+#include <ostream>
+#include <string>
 
 #define ENUM_REFL_IMPL(Friend, Enum, Type, ...)                                                  \
     enum class Enum : Type { __VA_ARGS__ };                                                      \
@@ -320,4 +322,33 @@ inline constexpr std::optional<Enum> to_enum(String&& s)
     }
 }
 
+template<enum_refl Enum>
+inline constexpr bool is_valid(Enum e)
+{
+    return to_string(e).has_value();
+}
+
+template<enum_refl Enum, typename String>
+inline constexpr bool is_valid(String&& s)
+{
+    return to_enum<Enum>(std::forward<String>(s)).has_value();
+}
+
 } // namespace enr
+
+namespace std {
+
+template<::enr::enum_refl Enum>
+ostream& operator<<(ostream& os, Enum en)
+{
+    using Int = std::underlying_type_t<Enum>;
+    auto const str = enr::to_string(en);
+    if (str) {
+        os << *str;
+    } else {
+        os << "UNKNOWN(" << to_string(static_cast<Int>(en)) << ")";
+    }
+    return os;
+}
+
+} // namespace std
