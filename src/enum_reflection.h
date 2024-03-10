@@ -61,7 +61,7 @@ inline consteval std::size_t number_of_entries(std::string_view enum_def)
 }
 
 template<typename Int>
-inline consteval Int decode_value(std::string_view value, bool negative)
+consteval Int decode_value(std::string_view value, bool negative)
 {
     // This function assumes that the input is at least a valid c++ expression. The compiler should
     // have validated that before this function gets called.
@@ -154,7 +154,7 @@ inline consteval Int decode_value(std::string_view value, bool negative)
 }
 
 template<typename Enum, std::size_t N>
-inline consteval auto build_in_order_array(std::string_view enum_def)
+consteval auto build_in_order_array(std::string_view enum_def)
 {
     using Int = std::underlying_type_t<Enum>;
 
@@ -230,7 +230,7 @@ inline consteval auto build_in_order_array(std::string_view enum_def)
 }
 
 template<typename Enum, std::size_t N, typename Array>
-inline consteval auto build_enum_to_string_array(Array&& arr)
+consteval auto build_enum_to_string_array(Array&& arr)
 {
     auto array = arr;
     std::ranges::sort(array, [](auto&& a, auto&& b) { return a.first < b.first; });
@@ -238,7 +238,7 @@ inline consteval auto build_enum_to_string_array(Array&& arr)
 }
 
 template<typename Enum, std::size_t N, typename Array>
-inline consteval auto build_string_to_enum_array(Array&& arr)
+consteval auto build_string_to_enum_array(Array&& arr)
 {
     auto array = arr;
     std::ranges::sort(array, [](auto&& a, auto&& b) { return a.second < b.second; });
@@ -256,31 +256,31 @@ struct is_enum_refl {
 };
 
 template<typename Enum>
-inline constexpr auto is_enum_refl_v = is_enum_refl<Enum>::value;
+constexpr auto is_enum_refl_v = is_enum_refl<Enum>::value;
 
 template<enum_refl Enum>
-inline constexpr auto const& entries()
+constexpr auto const& entries()
 {
     using Container = std::remove_pointer_t<decltype(enr_hook(Enum{}))>;
     return Container::in_order_array;
 }
 
 template<enum_refl Enum>
-inline constexpr auto const& entries_by_value()
+constexpr auto const& entries_by_value()
 {
     using Container = std::remove_pointer_t<decltype(enr_hook(Enum{}))>;
     return Container::enum_to_string;
 }
 
 template<enum_refl Enum>
-inline constexpr auto const& entries_by_name()
+constexpr auto const& entries_by_name()
 {
     using Container = std::remove_pointer_t<decltype(enr_hook(Enum{}))>;
     return Container::string_to_enum;
 }
 
 template<enum_refl Enum>
-inline constexpr std::optional<std::string_view> to_string(Enum e)
+constexpr std::optional<std::string_view> to_string(Enum e)
 {
     constexpr auto& array = entries_by_value<Enum>();
 
@@ -301,7 +301,7 @@ inline constexpr std::optional<std::string_view> to_string(Enum e)
 }
 
 template<enum_refl Enum, typename String>
-inline constexpr std::optional<Enum> to_enum(String&& s)
+constexpr std::optional<Enum> to_enum(String&& s)
 {
     std::string_view const sv{std::forward<String>(s)};
     constexpr auto& array = entries_by_name<Enum>();
@@ -323,13 +323,13 @@ inline constexpr std::optional<Enum> to_enum(String&& s)
 }
 
 template<enum_refl Enum>
-inline constexpr bool is_valid(Enum e)
+constexpr bool is_valid(Enum e)
 {
     return to_string(e).has_value();
 }
 
 template<enum_refl Enum, typename String>
-inline constexpr bool is_valid(String&& s)
+constexpr bool is_valid(String&& s)
 {
     return to_enum<Enum>(std::forward<String>(s)).has_value();
 }
