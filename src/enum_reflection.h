@@ -5,6 +5,7 @@
 #include <string_view>
 #include <type_traits>
 #include <optional>
+#include <limits>
 
 #define ENUM_REFL_IMPL(Friend, Enum, Type, ...)                                                  \
     enum class Enum : Type { __VA_ARGS__ };                                                      \
@@ -32,6 +33,7 @@
 namespace enr {
 namespace detail {
 
+// This value is completely arbitrary and backed by no testing.
 inline constexpr std::size_t binary_search_limit = 8;
 
 inline consteval std::size_t number_of_entries(std::string_view enum_def)
@@ -152,10 +154,12 @@ inline consteval Int decode_value(std::string_view value, bool negative)
 template<typename Enum, std::size_t N>
 inline consteval auto build_in_order_array(std::string_view enum_def)
 {
+    using Int = std::underlying_type_t<Enum>;
+
     std::array<std::pair<Enum, std::string_view>, N> array;
 
     std::size_t n = 0;
-    std::underlying_type_t<Enum> value = 0;
+    Int value = 0;
     std::string_view substr = enum_def;
 
     auto const is_alnum_char = [](char c) {
@@ -181,7 +185,9 @@ inline consteval auto build_in_order_array(std::string_view enum_def)
         auto const add_entry = [&] {
             array[n] = {Enum{value}, identifier};
             ++n;
-            ++value;
+            if (value != std::numeric_limits<Int>::max()) {
+                ++value;
+            }
         };
 
         // Look for equals or comma.
@@ -208,7 +214,7 @@ inline consteval auto build_in_order_array(std::string_view enum_def)
         index = std::ranges::find(substr, ',');
         std::string_view value_str{substr.cbegin(), index};
 
-        value = decode_value<std::underlying_type_t<Enum>>(value_str, false);
+        value = decode_value<Int>(value_str, false);
 
         substr = std::string_view{index, substr.cend()};
         add_entry();
@@ -293,7 +299,7 @@ inline constexpr std::optional<std::string_view> to_string(Enum e)
 }
 
 template<enum_refl Enum, typename String>
-inline constexpr std::optional<Enum> from_string(String&& s)
+inline constexpr std::optional<Enum> to_enum(String&& s)
 {
     std::string_view const sv{std::forward<String>(s)};
     constexpr auto& array = entries_by_name<Enum>();
