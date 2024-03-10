@@ -34,7 +34,7 @@ using namespace std::literals;
         VAL1 Value1, \
         VAL2 Value2, \
         VAL3 Value3, \
-    )                                            \
+    );    \
                                                                        \
     /* Test inside the same ns */                                      \
     STATIC_ASSERTS(Enum, Type)                                         \
@@ -49,7 +49,7 @@ using namespace std::literals;
         VAL1 Value1, \
         VAL2 Value2, \
         VAL3 Value3, \
-    )                                               \
+    );       \
         /* Test inside the class */                                                  \
         STATIC_ASSERTS(Enum, Type)                                                   \
     };                                                                               \
@@ -135,12 +135,12 @@ STATIC_TEST_ENUM_REFL_LIMITS(uint64_t, = 18446744073709551615ull, = 0, )
 namespace test_ns {
 
 // Empty (no entries)
-ENUM_REFL(Test1, int, )
+ENUM_REFL(Test1, int, );
 static_assert(enr::is_enum_refl_v<Test1>);
 static_assert(enr::entries<Test1>().empty());
 
 // Empty 2 (no entries, no trailing comma)
-ENUM_REFL(Test2, int)
+ENUM_REFL(Test2, int);
 static_assert(enr::is_enum_refl_v<Test2>);
 static_assert(enr::entries<Test2>().empty());
 
@@ -160,7 +160,7 @@ ENUM_REFL(Test4, int,
     E7 = -1208474023,
     E8 = -250021238,
     E9 = 415261831,
-)
+);
 static_assert(enr::entries<Test4>().size() >= enr::detail::binary_search_limit);
 static_assert(enr::to_string(Test4::E0) == "E0");
 static_assert(enr::to_string(Test4::E1) == "E1");

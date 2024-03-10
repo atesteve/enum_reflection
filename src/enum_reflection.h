@@ -19,13 +19,13 @@
             ::enr::detail::build_in_order_array<Enum, entries_n>(#__VA_ARGS__);                  \
                                                                                                  \
         static constexpr auto const enum_to_string =                                             \
-            ::enr::detail::build_enum_to_string<Enum, entries_n>(in_order_array);                \
+            ::enr::detail::build_enum_to_string_array<Enum, entries_n>(in_order_array);          \
                                                                                                  \
         static constexpr auto const string_to_enum =                                             \
-            ::enr::detail::build_string_to_enum<Enum, entries_n>(in_order_array);                \
+            ::enr::detail::build_string_to_enum_array<Enum, entries_n>(in_order_array);          \
     };                                                                                           \
     /* Hook to find the class information container through ADL. */                              \
-    Friend enr_##Enum##_container* enr_hook(Enum);
+    Friend enr_##Enum##_container* enr_hook(Enum)
 
 #define ENUM_REFL(Enum, Type, ...) ENUM_REFL_IMPL(, Enum, Type, __VA_ARGS__)
 #define ENUM_REFL_NESTED(Enum, Type, ...) ENUM_REFL_IMPL(friend, Enum, Type, __VA_ARGS__)
@@ -228,7 +228,7 @@ inline consteval auto build_in_order_array(std::string_view enum_def)
 }
 
 template<typename Enum, std::size_t N, typename Array>
-inline consteval auto build_enum_to_string(Array&& arr)
+inline consteval auto build_enum_to_string_array(Array&& arr)
 {
     auto array = arr;
     std::ranges::sort(array, [](auto&& a, auto&& b) { return a.first < b.first; });
@@ -236,7 +236,7 @@ inline consteval auto build_enum_to_string(Array&& arr)
 }
 
 template<typename Enum, std::size_t N, typename Array>
-inline consteval auto build_string_to_enum(Array&& arr)
+inline consteval auto build_string_to_enum_array(Array&& arr)
 {
     auto array = arr;
     std::ranges::sort(array, [](auto&& a, auto&& b) { return a.second < b.second; });
